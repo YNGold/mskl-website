@@ -1,0 +1,146 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  username      String    @unique
+  firstName     String
+  lastName      String
+  password      String
+  grade         Int
+  state         String
+  school        String?
+  parentEmail   String?
+  parentApproved Boolean  @default(false)
+  points        Int       @default(0)
+  level         Int       @default(1)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relationships
+  submissions   Submission[]
+  teamMembers   TeamMember[]
+  createdTeams  Team[]      @relation("TeamCreator")
+  
+  @@map("users")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String?
+  color       String    @default("#6366f1")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relationships
+  challenges  Challenge[]
+  
+  @@map("categories")
+}
+
+model Challenge {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  difficulty  String    // "Easy", "Medium", "Hard"
+  categoryId  String
+  grade       Int       // 9, 10, 11, 12
+  points      Int
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relationships
+  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  submissions Submission[]
+  
+  @@unique([title, grade])
+  @@map("challenges")
+}
+
+model Submission {
+  id          String    @id @default(cuid())
+  userId      String
+  challengeId String
+  answer      String
+  score       Int?
+  status      String    @default("pending") // "pending", "approved", "rejected"
+  adminNotes  String?
+  reviewedAt  DateTime?
+  reviewedBy  String?
+  submittedAt DateTime  @default(now())
+  
+  // Relationships
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  
+  @@map("submissions")
+}
+
+model Team {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String?
+  creatorId   String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relationships
+  creator     User      @relation("TeamCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  members     TeamMember[]
+  
+  @@map("teams")
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  userId    String
+  teamId    String
+  joinedAt  DateTime @default(now())
+  
+  // Relationships
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, teamId])
+  @@map("team_members")
+}
+
+model Prize {
+  id          String    @id @default(cuid())
+  name        String
+  description String
+  imageUrl    String?
+  value       Float?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  
+  @@map("prizes")
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  date        DateTime
+  location    String?
+  isVirtual   Boolean   @default(false)
+  maxAttendees Int?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  
+  @@map("events")
+}
