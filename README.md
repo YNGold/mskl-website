@@ -229,3 +229,4 @@ For support and questions:
 **MSKL.io** - Empowering the next generation of STEM leaders through competitive challenges and collaborative learning.
 # Updated for production database connection
 # Force production deployment
+# Fix API endpoints after seeding
