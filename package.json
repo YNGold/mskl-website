@@ -4,14 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "backup": "node scripts/backup.js",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "npm run build && node -e \"require('./src/app/api/seed/route.ts').GET()\""
+    "db:seed": "npm run build && node -e \"require('./src/app/api/seed/route.ts').GET()\"",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
