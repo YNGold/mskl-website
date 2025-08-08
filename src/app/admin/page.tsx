@@ -26,6 +26,9 @@ interface User {
   username: string
   grade: number
   state: string
+  school: string
+  parentEmail: string
+  parentApproved: boolean
   points: number
   level: number
   createdAt: string
@@ -34,6 +37,7 @@ interface User {
 interface Challenge {
   id: string
   title: string
+  description: string
   difficulty: string
   category: {
     id: string
@@ -42,6 +46,8 @@ interface Challenge {
   }
   grade: number
   points: number
+  startDate: string
+  endDate: string
   isActive: boolean
   createdAt: string
 }
@@ -68,6 +74,7 @@ interface Submission {
   id: string
   userId: string
   challengeId: string
+  answer: string
   score: number
   submittedAt: string
   user: {
@@ -299,7 +306,8 @@ export default function AdminDashboard() {
           title: '',
           description: '',
           difficulty: 'Medium',
-          category: 'Math',
+          categoryId: '',
+          grade: 9,
           points: 50,
           startDate: new Date().toISOString().split('T')[0],
           endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -2357,7 +2365,7 @@ function UserForm({ user, onSubmit, onCancel }: {
 
     try {
       // Remove password if not provided (for updates)
-      const submitData = { ...formData }
+      const submitData: any = { ...formData }
       if (!submitData.password && user) {
         delete submitData.password
       }

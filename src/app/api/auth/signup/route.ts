@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
         email,
         username,
         password: hashedPassword,
-        grade: parseInt(grade),
+        grade: grade,
         state,
         school: school || null,
         parentEmail: parentEmail || null,
