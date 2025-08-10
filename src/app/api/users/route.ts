@@ -17,8 +17,13 @@ export async function GET(request: NextRequest) {
         grade: true,
         state: true,
         school: true,
+        parentEmail: true,
+        parentApproved: true,
         points: true,
         level: true,
+        role: true,
+        permissions: true,
+        isAdmin: true,
         createdAt: true,
         updatedAt: true,
         _count: {
@@ -59,8 +64,12 @@ export async function POST(request: NextRequest) {
       state, 
       school, 
       parentEmail,
+      parentApproved = false,
       points = 0,
-      level = 1
+      level = 1,
+      role = 'student',
+      permissions = [],
+      isAdmin = false
     } = body
 
     // Validate required fields
@@ -103,8 +112,12 @@ export async function POST(request: NextRequest) {
         state,
         school,
         parentEmail,
+        parentApproved,
         points: parseInt(points),
-        level: parseInt(level)
+        level: parseInt(level),
+        role,
+        permissions,
+        isAdmin
       },
       select: {
         id: true,
@@ -116,8 +129,12 @@ export async function POST(request: NextRequest) {
         state: true,
         school: true,
         parentEmail: true,
+        parentApproved: true,
         points: true,
         level: true,
+        role: true,
+        permissions: true,
+        isAdmin: true,
         createdAt: true
       }
     })
