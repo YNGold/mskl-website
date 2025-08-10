@@ -11,6 +11,14 @@ export const metadata: Metadata = {
   title: 'MSKL.io - Where Sharp Minds Meet Real-World Challenges',
   description: 'Every two weeks, a new mission drops. Win prizes. Unlock exclusive events. Level up your future.',
   keywords: 'real-world challenges, problem-solving, student competitions, innovation, academic excellence',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '16x16 32x32', type: 'image/x-icon' },
+      { url: '/favicon.png', sizes: 'any', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/favicon.png',
+  },
 }
 
 export default function RootLayout({
