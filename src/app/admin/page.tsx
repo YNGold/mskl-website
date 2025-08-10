@@ -116,6 +116,10 @@ export default function AdminDashboard() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [creating, setCreating] = useState(false)
   const [showCategoryModal, setShowCategoryModal] = useState(false)
+  
+  // Sorting state
+  const [userSortField, setUserSortField] = useState<keyof User>('createdAt')
+  const [userSortDirection, setUserSortDirection] = useState<'asc' | 'desc'>('desc')
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
   const [showUserModal, setShowUserModal] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
@@ -531,6 +535,36 @@ export default function AdminDashboard() {
     } else {
       setSelectedUsers(users.map(user => user.id))
     }
+  }
+
+  // Sorting function for users
+  const handleUserSort = (field: keyof User) => {
+    if (userSortField === field) {
+      setUserSortDirection(userSortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      setUserSortField(field)
+      setUserSortDirection('asc')
+    }
+  }
+
+  // Get sorted users
+  const getSortedUsers = () => {
+    return [...users].sort((a, b) => {
+      const aValue = a[userSortField]
+      const bValue = b[userSortField]
+      
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        const comparison = aValue.localeCompare(bValue)
+        return userSortDirection === 'asc' ? comparison : -comparison
+      }
+      
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        const comparison = aValue - bValue
+        return userSortDirection === 'asc' ? comparison : -comparison
+      }
+      
+      return 0
+    })
   }
 
   const handleCreateCategory = async (categoryData: any) => {
@@ -1088,17 +1122,113 @@ export default function AdminDashboard() {
                           className="rounded border-purple-500/20 bg-black/50 text-purple-500 focus:ring-purple-500"
                         />
                       </th>
-                      <th className="text-gray-300 font-semibold py-3">User</th>
-                      <th className="text-gray-300 font-semibold py-3">Email</th>
-                      <th className="text-gray-300 font-semibold py-3">Grade</th>
-                      <th className="text-gray-300 font-semibold py-3">State</th>
-                      <th className="text-gray-300 font-semibold py-3">Points</th>
-                      <th className="text-gray-300 font-semibold py-3">Level</th>
+                      <th 
+                        className="text-gray-300 font-semibold py-3 cursor-pointer hover:text-white transition-colors select-none"
+                        onClick={() => handleUserSort('username')}
+                      >
+                        <div className="flex items-center space-x-1 group">
+                          <span>User</span>
+                          {userSortField === 'username' ? (
+                            <span className="text-purple-400 font-bold">
+                              {userSortDirection === 'asc' ? '↑' : '↓'}
+                            </span>
+                          ) : (
+                            <span className="text-gray-500 group-hover:text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                              ↕
+                            </span>
+                          )}
+                        </div>
+                      </th>
+                      <th 
+                        className="text-gray-300 font-semibold py-3 cursor-pointer hover:text-white transition-colors select-none"
+                        onClick={() => handleUserSort('email')}
+                      >
+                        <div className="flex items-center space-x-1 group">
+                          <span>Email</span>
+                          {userSortField === 'email' ? (
+                            <span className="text-purple-400 font-bold">
+                              {userSortDirection === 'asc' ? '↑' : '↓'}
+                            </span>
+                          ) : (
+                            <span className="text-gray-500 group-hover:text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                              ↕
+                            </span>
+                          )}
+                        </div>
+                      </th>
+                      <th 
+                        className="text-gray-300 font-semibold py-3 cursor-pointer hover:text-white transition-colors select-none"
+                        onClick={() => handleUserSort('grade')}
+                      >
+                        <div className="flex items-center space-x-1 group">
+                          <span>Grade</span>
+                          {userSortField === 'grade' ? (
+                            <span className="text-purple-400 font-bold">
+                              {userSortDirection === 'asc' ? '↑' : '↓'}
+                            </span>
+                          ) : (
+                            <span className="text-gray-500 group-hover:text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                              ↕
+                            </span>
+                          )}
+                        </div>
+                      </th>
+                      <th 
+                        className="text-gray-300 font-semibold py-3 cursor-pointer hover:text-white transition-colors select-none"
+                        onClick={() => handleUserSort('state')}
+                      >
+                        <div className="flex items-center space-x-1 group">
+                          <span>State</span>
+                          {userSortField === 'state' ? (
+                            <span className="text-purple-400 font-bold">
+                              {userSortDirection === 'asc' ? '↑' : '↓'}
+                            </span>
+                          ) : (
+                            <span className="text-gray-500 group-hover:text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                              ↕
+                            </span>
+                          )}
+                        </div>
+                      </th>
+                      <th 
+                        className="text-gray-300 font-semibold py-3 cursor-pointer hover:text-white transition-colors select-none"
+                        onClick={() => handleUserSort('points')}
+                      >
+                        <div className="flex items-center space-x-1 group">
+                          <span>Points</span>
+                          {userSortField === 'points' ? (
+                            <span className="text-purple-400 font-bold">
+                              {userSortDirection === 'asc' ? '↑' : '↓'}
+                            </span>
+                          ) : (
+                            <span className="text-gray-500 group-hover:text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                              ↕
+                            </span>
+                          )}
+                        </div>
+                      </th>
+                      <th 
+                        className="text-gray-300 font-semibold py-3 cursor-pointer hover:text-white transition-colors select-none"
+                        onClick={() => handleUserSort('level')}
+                      >
+                        <div className="flex items-center space-x-1 group">
+                          <span>Level</span>
+                          {userSortField === 'level' ? (
+                            <span className="text-purple-400 font-bold">
+                              {userSortDirection === 'asc' ? '↑' : '↓'}
+                            </span>
+                          ) : (
+                            <span className="text-gray-500 group-hover:text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                              ↕
+                            </span>
+                          )}
+                        </div>
+                      </th>
                       <th className="text-gray-300 font-semibold py-3">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {users.map((user) => (
+                    {getSortedUsers().map((user) => (
                       <tr key={user.id} className="border-b border-purple-500/10">
                         <td className="py-3">
                           <input
