@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useRouter } from 'next/navigation'
 import { 
   Users, 
   Target, 
@@ -15,8 +16,20 @@ import {
   LogOut,
   UserCheck,
   Award,
-  X
+  X,
+  Shield,
+  Crown
 } from 'lucide-react'
+
+interface AdminSession {
+  id: string
+  email: string
+  firstName: string
+  lastName: string
+  role: string
+  permissions: string[]
+  isAdmin: boolean
+}
 
 interface User {
   id: string
@@ -31,6 +44,9 @@ interface User {
   parentApproved: boolean
   points: number
   level: number
+  role: string
+  permissions: string[]
+  isAdmin: boolean
   createdAt: string
 }
 
@@ -88,6 +104,8 @@ interface Submission {
 }
 
 export default function AdminDashboard() {
+  const router = useRouter()
+  const [adminSession, setAdminSession] = useState<AdminSession | null>(null)
   const [activeTab, setActiveTab] = useState('overview')
   const [users, setUsers] = useState<User[]>([])
   const [challenges, setChallenges] = useState<Challenge[]>([])
@@ -344,9 +362,46 @@ export default function AdminDashboard() {
     }
   }
 
-  const handleLogout = () => {
-    // Add logout logic here
-    window.location.href = '/'
+  // Check authentication on component mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/admin-session')
+        if (response.ok) {
+          const session = await response.json()
+          setAdminSession(session)
+        } else {
+          router.push('/admin/login')
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error)
+        router.push('/admin/login')
+      }
+    }
+
+    checkAuth()
+  }, [router])
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/admin-logout', { method: 'POST' })
+      setAdminSession(null)
+      router.push('/admin/login')
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
+  }
+
+  // Show loading while checking authentication
+  if (!adminSession) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-orange-900 flex items-center justify-center">
+        <div className="text-white text-center">
+          <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
+          <p>Loading admin panel...</p>
+        </div>
+      </div>
+    )
   }
 
   const handleCreateUser = async (userData: any) => {
@@ -845,13 +900,28 @@ export default function AdminDashboard() {
               <h1 className="text-2xl font-bold text-white">MSKL.io Admin</h1>
               <span className="text-purple-400 text-sm">Backend Management</span>
             </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Logout</span>
-            </button>
+            <div className="flex items-center space-x-4">
+              {/* Admin User Info */}
+              <div className="flex items-center space-x-2 text-gray-300">
+                <div className="flex items-center space-x-1">
+                  {adminSession?.role === 'super_admin' && <Crown className="w-4 h-4 text-yellow-400" />}
+                  {adminSession?.role === 'admin' && <Shield className="w-4 h-4 text-blue-400" />}
+                  {adminSession?.role === 'moderator' && <UserCheck className="w-4 h-4 text-green-400" />}
+                  {adminSession?.role === 'viewer' && <Eye className="w-4 h-4 text-gray-400" />}
+                </div>
+                <span className="text-sm">
+                  {adminSession?.firstName} {adminSession?.lastName}
+                </span>
+                <span className="text-xs text-gray-500">({adminSession?.role})</span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -2354,7 +2424,10 @@ function UserForm({ user, onSubmit, onCancel }: {
     parentEmail: user?.parentEmail || '',
     parentApproved: user?.parentApproved || false,
     points: user?.points || 0,
-    level: user?.level || 1
+    level: user?.level || 1,
+    role: user?.role || 'student',
+    permissions: user?.permissions || [],
+    isAdmin: user?.isAdmin || false
   })
 
   const [submitting, setSubmitting] = useState(false)
@@ -2525,6 +2598,87 @@ function UserForm({ user, onSubmit, onCancel }: {
             className="w-full bg-black/50 border border-purple-500/20 rounded-lg text-white p-3 focus:outline-none focus:border-purple-500"
             placeholder="Level"
           />
+        </div>
+      </div>
+
+      {/* Role Management Section */}
+      <div className="border-t border-purple-500/20 pt-4">
+        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <Shield className="w-5 h-5" />
+          Role & Permissions
+        </h3>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-gray-300 text-sm mb-2">Role</label>
+            <select
+              value={formData.role}
+              onChange={(e) => {
+                const newRole = e.target.value
+                setFormData({
+                  ...formData, 
+                  role: newRole,
+                  isAdmin: ['admin', 'moderator', 'viewer', 'super_admin'].includes(newRole)
+                })
+              }}
+              className="w-full bg-black/50 border border-purple-500/20 rounded-lg text-white p-3 focus:outline-none focus:border-purple-500"
+            >
+              <option value="student">Student</option>
+              <option value="viewer">Viewer (Read-only)</option>
+              <option value="moderator">Moderator</option>
+              <option value="admin">Admin</option>
+              <option value="super_admin">Super Admin</option>
+            </select>
+          </div>
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={formData.isAdmin}
+              onChange={(e) => setFormData({...formData, isAdmin: e.target.checked})}
+              className="rounded border-purple-500/20 bg-black/50 text-purple-500 focus:ring-purple-500"
+            />
+            <label className="text-gray-300 text-sm">Admin Access</label>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <label className="block text-gray-300 text-sm mb-2">Permissions</label>
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              'manage_users',
+              'manage_challenges', 
+              'manage_categories',
+              'manage_submissions',
+              'manage_prizes',
+              'view_analytics',
+              'manage_settings',
+              'full_access'
+            ].map(permission => (
+              <div key={permission} className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={formData.permissions.includes(permission)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setFormData({
+                        ...formData, 
+                        permissions: [...formData.permissions, permission]
+                      })
+                    } else {
+                      setFormData({
+                        ...formData, 
+                        permissions: formData.permissions.filter(p => p !== permission)
+                      })
+                    }
+                  }}
+                  className="rounded border-purple-500/20 bg-black/50 text-purple-500 focus:ring-purple-500"
+                />
+                <label className="text-gray-300 text-sm capitalize">
+                  {permission.replace('_', ' ')}
+                </label>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

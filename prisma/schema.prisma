@@ -24,6 +24,9 @@ model User {
   parentApproved Boolean  @default(false)
   points        Int       @default(0)
   level         Int       @default(1)
+  role          String    @default("student") // "student", "admin", "moderator", "viewer"
+  permissions   String[]  @default([]) // Array of specific permissions
+  isAdmin       Boolean   @default(false)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   

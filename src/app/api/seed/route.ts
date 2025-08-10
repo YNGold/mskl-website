@@ -135,8 +135,56 @@ export async function POST(request: NextRequest) {
 
     // Create sample users
     const hashedPassword = await bcrypt.hash('password123', 12)
+    const adminPassword = await bcrypt.hash('admin123', 12)
     
     const users = [
+      // Admin Users
+      {
+        firstName: 'Admin',
+        lastName: 'User',
+        email: 'admin@mskl.io',
+        username: 'admin',
+        password: adminPassword,
+        grade: 12,
+        state: 'California',
+        school: 'MSKL Admin',
+        points: 0,
+        level: 1,
+        role: 'super_admin',
+        permissions: ['full_access'],
+        isAdmin: true
+      },
+      {
+        firstName: 'Moderator',
+        lastName: 'User',
+        email: 'moderator@mskl.io',
+        username: 'moderator',
+        password: adminPassword,
+        grade: 12,
+        state: 'California',
+        school: 'MSKL Admin',
+        points: 0,
+        level: 1,
+        role: 'moderator',
+        permissions: ['manage_submissions', 'view_analytics'],
+        isAdmin: true
+      },
+      {
+        firstName: 'Viewer',
+        lastName: 'User',
+        email: 'viewer@mskl.io',
+        username: 'viewer',
+        password: adminPassword,
+        grade: 12,
+        state: 'California',
+        school: 'MSKL Admin',
+        points: 0,
+        level: 1,
+        role: 'viewer',
+        permissions: ['view_analytics'],
+        isAdmin: true
+      },
+      // Student Users
       {
         firstName: 'John',
         lastName: 'Doe',
@@ -147,7 +195,10 @@ export async function POST(request: NextRequest) {
         state: 'California',
         school: 'Sample High School',
         points: 150,
-        level: 2
+        level: 2,
+        role: 'student',
+        permissions: [],
+        isAdmin: false
       },
       {
         firstName: 'Jane',
@@ -159,7 +210,10 @@ export async function POST(request: NextRequest) {
         state: 'New York',
         school: 'Sample High School',
         points: 275,
-        level: 3
+        level: 3,
+        role: 'student',
+        permissions: [],
+        isAdmin: false
       },
       {
         firstName: 'Mike',
@@ -171,7 +225,10 @@ export async function POST(request: NextRequest) {
         state: 'Texas',
         school: 'Sample High School',
         points: 400,
-        level: 4
+        level: 4,
+        role: 'student',
+        permissions: [],
+        isAdmin: false
       },
       {
         firstName: 'Sarah',
@@ -183,7 +240,10 @@ export async function POST(request: NextRequest) {
         state: 'Florida',
         school: 'Sample High School',
         points: 600,
-        level: 5
+        level: 5,
+        role: 'student',
+        permissions: [],
+        isAdmin: false
       }
     ]
 
