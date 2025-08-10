@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
     await prisma.challenge.deleteMany()
     await prisma.category.deleteMany()
     await prisma.user.deleteMany()
+    await prisma.advisor.deleteMany()
 
     // Create default categories
     const categories = [
@@ -293,6 +294,82 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // Create sample advisors
+    const advisors = [
+      {
+        name: 'Dr. Sarah Chen',
+        title: 'AI Research Director',
+        company: 'Google DeepMind',
+        expertise: 'Machine Learning & AI',
+        bio: 'Leading researcher in quantum machine learning with 15+ years experience in AI development.',
+        achievements: ['PhD Stanford', '50+ Publications', 'TEDx Speaker'],
+        imageUrl: '/images/mentor1.jpg',
+        isActive: true,
+        order: 1
+      },
+      {
+        name: 'Marcus Rodriguez',
+        title: 'Chief Technology Officer',
+        company: 'SpaceX',
+        expertise: 'Aerospace Engineering',
+        bio: 'Former NASA engineer now leading SpaceX\'s propulsion systems development.',
+        achievements: ['MIT Graduate', 'NASA Veteran', 'Patent Holder'],
+        imageUrl: '/images/mentor2.jpg',
+        isActive: true,
+        order: 2
+      },
+      {
+        name: 'Dr. Emma Thompson',
+        title: 'Research Scientist',
+        company: 'MIT CSAIL',
+        expertise: 'Computer Science',
+        bio: 'Pioneering work in distributed systems and blockchain technology.',
+        achievements: ['MIT Faculty', 'NSF Award', 'Industry Advisor'],
+        imageUrl: '/images/mentor3.jpg',
+        isActive: true,
+        order: 3
+      },
+      {
+        name: 'Alex Kim',
+        title: 'VP of Engineering',
+        company: 'Microsoft',
+        expertise: 'Software Engineering',
+        bio: 'Leading Microsoft\'s cloud infrastructure and developer tools teams.',
+        achievements: ['Stanford CS', '20+ Years Experience', 'Open Source Contributor'],
+        imageUrl: '/images/mentor4.jpg',
+        isActive: true,
+        order: 4
+      },
+      {
+        name: 'Jordan Williams',
+        title: 'Quantum Computing Lead',
+        company: 'IBM Research',
+        expertise: 'Quantum Computing',
+        bio: 'Developing next-generation quantum algorithms and quantum-safe cryptography.',
+        achievements: ['PhD Caltech', 'IBM Fellow', 'Quantum Pioneer'],
+        imageUrl: '/images/mentor5.jpg',
+        isActive: true,
+        order: 5
+      },
+      {
+        name: 'Maria Garcia',
+        title: 'Data Science Director',
+        company: 'Netflix',
+        expertise: 'Data Science & ML',
+        bio: 'Leading Netflix\'s recommendation systems and content optimization.',
+        achievements: ['UC Berkeley PhD', 'Netflix Innovation', 'ML Expert'],
+        imageUrl: '/images/mentor6.jpg',
+        isActive: true,
+        order: 6
+      }
+    ]
+
+    for (const advisorData of advisors) {
+      await prisma.advisor.create({
+        data: advisorData
+      })
+    }
+
     // Create sample submissions
     const submissions = [
       {
@@ -328,12 +405,13 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
-      message: 'Database seeded successfully with categories, challenges, users, prizes, and submissions',
+      message: 'Database seeded successfully with categories, challenges, users, prizes, advisors, and submissions',
       stats: {
         categories: createdCategories.length,
         challenges: createdChallenges.length,
         users: createdUsers.length,
         prizes: prizes.length,
+        advisors: advisors.length,
         submissions: submissions.length
       }
     })

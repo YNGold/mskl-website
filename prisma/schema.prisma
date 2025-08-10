@@ -147,3 +147,20 @@ model Event {
   
   @@map("events")
 }
+
+model Advisor {
+  id          String    @id @default(cuid())
+  name        String
+  title       String
+  company     String
+  expertise   String
+  bio         String
+  achievements String[] // Array of achievement strings
+  imageUrl    String?
+  isActive    Boolean   @default(true)
+  order       Int       @default(0) // For custom ordering
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@map("advisors")
+}

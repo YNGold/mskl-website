@@ -18,7 +18,8 @@ import {
   Award,
   X,
   Shield,
-  Crown
+  Crown,
+  GraduationCap
 } from 'lucide-react'
 
 interface AdminSession {
@@ -86,6 +87,21 @@ interface Prize {
   createdAt: string
 }
 
+interface Advisor {
+  id: string
+  name: string
+  title: string
+  company: string
+  expertise: string
+  bio: string
+  achievements: string[]
+  imageUrl: string
+  isActive: boolean
+  order: number
+  createdAt: string
+  updatedAt: string
+}
+
 interface Submission {
   id: string
   userId: string
@@ -111,6 +127,7 @@ export default function AdminDashboard() {
   const [challenges, setChallenges] = useState<Challenge[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [prizes, setPrizes] = useState<Prize[]>([])
+  const [advisors, setAdvisors] = useState<Advisor[]>([])
   const [submissions, setSubmissions] = useState<Submission[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -131,6 +148,8 @@ export default function AdminDashboard() {
   const [editingSubmission, setEditingSubmission] = useState<Submission | null>(null)
   const [showPrizeModal, setShowPrizeModal] = useState(false)
   const [editingPrize, setEditingPrize] = useState<Prize | null>(null)
+  const [showAdvisorModal, setShowAdvisorModal] = useState(false)
+  const [editingAdvisor, setEditingAdvisor] = useState<Advisor | null>(null)
   const [settings, setSettings] = useState({
     challengeReleaseSchedule: 'Bi-weekly',
     scoringSystem: 'Point-based',
@@ -243,12 +262,13 @@ export default function AdminDashboard() {
 
   const fetchData = async () => {
     try {
-      const [usersRes, challengesRes, categoriesRes, submissionsRes, prizesRes] = await Promise.all([
+      const [usersRes, challengesRes, categoriesRes, submissionsRes, prizesRes, advisorsRes] = await Promise.all([
         fetch('/api/users'),
         fetch('/api/challenges'),
         fetch('/api/categories'),
         fetch('/api/submissions'),
-        fetch('/api/prizes')
+        fetch('/api/prizes'),
+        fetch('/api/advisors')
       ])
 
       if (usersRes.ok) {
@@ -281,6 +301,11 @@ export default function AdminDashboard() {
       if (prizesRes.ok) {
         const prizesData = await prizesRes.json()
         setPrizes(prizesData)
+      }
+
+      if (advisorsRes.ok) {
+        const advisorsData = await advisorsRes.json()
+        setAdvisors(advisorsData)
       }
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -916,6 +941,84 @@ export default function AdminDashboard() {
     }
   }
 
+  // Advisor Management Functions
+  const handleCreateAdvisor = async (advisorData: any) => {
+    try {
+      const response = await fetch('/api/advisors', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(advisorData),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        console.log('Advisor created:', result)
+        setShowAdvisorModal(false)
+        setEditingAdvisor(null)
+        fetchData()
+      } else {
+        const error = await response.json()
+        alert(`Error creating advisor: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Error creating advisor:', error)
+      alert('Error creating advisor. Please try again.')
+    }
+  }
+
+  const handleUpdateAdvisor = async (advisorData: any) => {
+    if (!editingAdvisor) return
+
+    try {
+      const response = await fetch(`/api/advisors/${editingAdvisor.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(advisorData),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        console.log('Advisor updated:', result)
+        setShowAdvisorModal(false)
+        setEditingAdvisor(null)
+        fetchData()
+      } else {
+        const error = await response.json()
+        alert(`Error updating advisor: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Error updating advisor:', error)
+      alert('Error updating advisor. Please try again.')
+    }
+  }
+
+  const handleDeleteAdvisor = async (advisorId: string) => {
+    if (!confirm('Are you sure you want to delete this advisor? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/advisors/${advisorId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        console.log('Advisor deleted successfully')
+        fetchData()
+      } else {
+        const error = await response.json()
+        alert(`Error deleting advisor: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Error deleting advisor:', error)
+      alert('Error deleting advisor. Please try again.')
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
@@ -1016,6 +1119,7 @@ export default function AdminDashboard() {
             { id: 'challenges', label: 'Challenges', icon: Target },
             { id: 'categories', label: 'Categories', icon: Award },
             { id: 'prizes', label: 'Prizes', icon: Award },
+            { id: 'advisors', label: 'Advisors', icon: GraduationCap },
             { id: 'submissions', label: 'Submissions', icon: Trophy },
             { id: 'settings', label: 'Settings', icon: Settings }
           ].map((tab) => (
@@ -1503,6 +1607,99 @@ export default function AdminDashboard() {
                             <button 
                               onClick={() => handleDeletePrize(prize.id)}
                               className="text-red-400 hover:text-red-300"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'advisors' && (
+            <div className="bg-black/30 backdrop-blur-sm border border-purple-500/20 rounded-xl p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-white">Advisory Circle Management</h2>
+                <button 
+                  onClick={() => {
+                    setEditingAdvisor(null)
+                    setShowAdvisorModal(true)
+                  }}
+                  className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Advisor</span>
+                </button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-purple-500/20">
+                      <th className="text-gray-300 font-semibold py-3">Advisor</th>
+                      <th className="text-gray-300 font-semibold py-3">Title & Company</th>
+                      <th className="text-gray-300 font-semibold py-3">Expertise</th>
+                      <th className="text-gray-300 font-semibold py-3">Order</th>
+                      <th className="text-gray-300 font-semibold py-3">Status</th>
+                      <th className="text-gray-300 font-semibold py-3">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {advisors.map((advisor) => (
+                      <tr key={advisor.id} className="border-b border-purple-500/10">
+                        <td className="py-3">
+                          <div className="flex items-center space-x-3">
+                            {advisor.imageUrl && (
+                              <img 
+                                src={advisor.imageUrl} 
+                                alt={advisor.name}
+                                className="w-10 h-10 rounded-full object-cover"
+                              />
+                            )}
+                            <div>
+                              <p className="text-white font-medium">{advisor.name}</p>
+                              <p className="text-gray-400 text-sm">{advisor.bio.substring(0, 50)}...</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3">
+                          <div>
+                            <p className="text-blue-400 font-medium">{advisor.title}</p>
+                            <p className="text-gray-400 text-sm">{advisor.company}</p>
+                          </div>
+                        </td>
+                        <td className="py-3">
+                          <span className="inline-flex items-center px-2 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-300 text-sm">
+                            {advisor.expertise}
+                          </span>
+                        </td>
+                        <td className="py-3 text-gray-300">{advisor.order}</td>
+                        <td className="py-3">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            advisor.isActive ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'
+                          }`}>
+                            {advisor.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td className="py-3">
+                          <div className="flex space-x-2">
+                            <button 
+                              onClick={() => {
+                                setEditingAdvisor(advisor)
+                                setShowAdvisorModal(true)
+                              }}
+                              className="text-green-400 hover:text-green-300"
+                              title="Edit Advisor"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteAdvisor(advisor.id)}
+                              className="text-red-400 hover:text-red-300"
+                              title="Delete Advisor"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -2062,7 +2259,250 @@ export default function AdminDashboard() {
           </motion.div>
         </div>
       )}
+
+      {/* Advisor Modal */}
+      {showAdvisorModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-black/90 backdrop-blur-md border border-purple-500/20 rounded-xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-white">
+                {editingAdvisor ? 'Edit Advisor' : 'Add New Advisor'}
+              </h2>
+              <button
+                onClick={() => {
+                  setShowAdvisorModal(false)
+                  setEditingAdvisor(null)
+                }}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <AdvisorForm 
+              advisor={editingAdvisor}
+              onSubmit={editingAdvisor ? handleUpdateAdvisor : handleCreateAdvisor}
+              onCancel={() => {
+                setShowAdvisorModal(false)
+                setEditingAdvisor(null)
+              }}
+            />
+          </motion.div>
+        </div>
+      )}
     </div>
+  )
+}
+
+// Advisor Form Component
+function AdvisorForm({ advisor, onSubmit, onCancel }: { 
+  advisor: Advisor | null, 
+  onSubmit: (data: any) => void, 
+  onCancel: () => void 
+}) {
+  const [formData, setFormData] = useState({
+    name: advisor?.name || '',
+    title: advisor?.title || '',
+    company: advisor?.company || '',
+    expertise: advisor?.expertise || '',
+    bio: advisor?.bio || '',
+    achievements: advisor?.achievements || [''],
+    imageUrl: advisor?.imageUrl || '',
+    isActive: advisor?.isActive ?? true,
+    order: advisor?.order || 0
+  })
+
+  const [submitting, setSubmitting] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSubmitting(true)
+
+    try {
+      // Filter out empty achievements
+      const cleanAchievements = formData.achievements.filter(achievement => achievement.trim() !== '')
+      await onSubmit({ ...formData, achievements: cleanAchievements })
+    } catch (error) {
+      console.error('Form submission error:', error)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const addAchievement = () => {
+    setFormData({
+      ...formData,
+      achievements: [...formData.achievements, '']
+    })
+  }
+
+  const removeAchievement = (index: number) => {
+    setFormData({
+      ...formData,
+      achievements: formData.achievements.filter((_, i) => i !== index)
+    })
+  }
+
+  const updateAchievement = (index: number, value: string) => {
+    const newAchievements = [...formData.achievements]
+    newAchievements[index] = value
+    setFormData({
+      ...formData,
+      achievements: newAchievements
+    })
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-gray-300 text-sm mb-2">Name *</label>
+          <input
+            type="text"
+            required
+            value={formData.name}
+            onChange={(e) => setFormData({...formData, name: e.target.value})}
+            className="w-full bg-black/50 border border-purple-500/20 rounded-lg text-white p-3 focus:outline-none focus:border-purple-500"
+            placeholder="Advisor Name"
+          />
+        </div>
+        <div>
+          <label className="block text-gray-300 text-sm mb-2">Title *</label>
+          <input
+            type="text"
+            required
+            value={formData.title}
+            onChange={(e) => setFormData({...formData, title: e.target.value})}
+            className="w-full bg-black/50 border border-purple-500/20 rounded-lg text-white p-3 focus:outline-none focus:border-purple-500"
+            placeholder="Job Title"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-gray-300 text-sm mb-2">Company *</label>
+          <input
+            type="text"
+            required
+            value={formData.company}
+            onChange={(e) => setFormData({...formData, company: e.target.value})}
+            className="w-full bg-black/50 border border-purple-500/20 rounded-lg text-white p-3 focus:outline-none focus:border-purple-500"
+            placeholder="Company Name"
+          />
+        </div>
+        <div>
+          <label className="block text-gray-300 text-sm mb-2">Expertise *</label>
+          <input
+            type="text"
+            required
+            value={formData.expertise}
+            onChange={(e) => setFormData({...formData, expertise: e.target.value})}
+            className="w-full bg-black/50 border border-purple-500/20 rounded-lg text-white p-3 focus:outline-none focus:border-purple-500"
+            placeholder="e.g., Machine Learning & AI"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-gray-300 text-sm mb-2">Bio *</label>
+        <textarea
+          rows={3}
+          required
+          value={formData.bio}
+          onChange={(e) => setFormData({...formData, bio: e.target.value})}
+          className="w-full bg-black/50 border border-purple-500/20 rounded-lg text-white p-3 focus:outline-none focus:border-purple-500"
+          placeholder="Brief biography of the advisor"
+        />
+      </div>
+
+      <div>
+        <label className="block text-gray-300 text-sm mb-2">Image URL</label>
+        <input
+          type="url"
+          value={formData.imageUrl}
+          onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
+          className="w-full bg-black/50 border border-purple-500/20 rounded-lg text-white p-3 focus:outline-none focus:border-purple-500"
+          placeholder="https://example.com/image.jpg"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-gray-300 text-sm mb-2">Order</label>
+          <input
+            type="number"
+            min="0"
+            value={formData.order}
+            onChange={(e) => setFormData({...formData, order: parseInt(e.target.value) || 0})}
+            className="w-full bg-black/50 border border-purple-500/20 rounded-lg text-white p-3 focus:outline-none focus:border-purple-500"
+            placeholder="Display order"
+          />
+        </div>
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            checked={formData.isActive}
+            onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
+            className="rounded border-purple-500/20 bg-black/50 text-purple-500 focus:ring-purple-500"
+          />
+          <label className="text-gray-300 text-sm">Active</label>
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-gray-300 text-sm mb-2">Achievements</label>
+        <div className="space-y-2">
+          {formData.achievements.map((achievement, index) => (
+            <div key={index} className="flex space-x-2">
+              <input
+                type="text"
+                value={achievement}
+                onChange={(e) => updateAchievement(index, e.target.value)}
+                className="flex-1 bg-black/50 border border-purple-500/20 rounded-lg text-white p-3 focus:outline-none focus:border-purple-500"
+                placeholder="e.g., PhD Stanford, 50+ Publications"
+              />
+              <button
+                type="button"
+                onClick={() => removeAchievement(index)}
+                className="px-3 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addAchievement}
+            className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+          >
+            <Plus className="w-4 h-4 inline mr-2" />
+            Add Achievement
+          </button>
+        </div>
+      </div>
+
+      <div className="flex justify-end space-x-4 pt-4">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-6 py-2 text-gray-300 hover:text-white transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={submitting}
+          className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50"
+        >
+          {submitting ? 'Saving...' : (advisor ? 'Update Advisor' : 'Create Advisor')}
+        </button>
+      </div>
+    </form>
   )
 }
 
