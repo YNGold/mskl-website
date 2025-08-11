@@ -1050,14 +1050,14 @@ export default function AdminDashboard() {
                   {adminSession?.firstName} {adminSession?.lastName}
                 </span>
                 <span className="text-xs text-gray-500">({adminSession?.role})</span>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Logout</span>
-              </button>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
+            </button>
             </div>
           </div>
         </div>
@@ -1209,9 +1209,9 @@ export default function AdminDashboard() {
                     }}
                     className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"
                   >
-                    <Plus className="w-4 h-4" />
-                    <span>Add User</span>
-                  </button>
+                  <Plus className="w-4 h-4" />
+                  <span>Add User</span>
+                </button>
                 </div>
               </div>
               <div className="overflow-x-auto">

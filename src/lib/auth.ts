@@ -28,9 +28,8 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        // For now, we'll use a simple password check
-        // In production, you'd want to hash passwords properly
-        const isPasswordValid = credentials.password === 'password123' // Temporary
+        // Verify password using bcrypt
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
 
         if (!isPasswordValid) {
           return null

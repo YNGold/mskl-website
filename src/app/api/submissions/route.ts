@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get('userId')
     const challengeId = searchParams.get('challengeId')
+    const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined
 
     let where: any = {}
 
@@ -41,7 +42,8 @@ export async function GET(request: NextRequest) {
       },
       orderBy: {
         submittedAt: 'desc'
-      }
+      },
+      take: limit
     })
 
     return NextResponse.json(submissions)

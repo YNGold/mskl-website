@@ -1,9 +1,95 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Target, Trophy, TrendingUp, Calendar, Users, Award } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import { Target, Trophy, TrendingUp, Calendar, Users, Award, Loader2 } from 'lucide-react'
+
+interface UserStats {
+  points: number
+  rank: number
+  challengesCompleted: number
+  teamMembers: number
+}
+
+interface Challenge {
+  id: string
+  title: string
+  description: string
+  difficulty: string
+  points: number
+  category: string
+  endDate: string
+  progress: number
+}
+
+interface Activity {
+  id: string
+  type: string
+  title: string
+  description: string
+  points?: number
+  date: string
+}
 
 export default function DashboardPage() {
+  const { data: session } = useSession()
+  const [stats, setStats] = useState<UserStats | null>(null)
+  const [currentChallenge, setCurrentChallenge] = useState<Challenge | null>(null)
+  const [recentActivity, setRecentActivity] = useState<Activity[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (!session?.user?.id) return
+
+      try {
+        // Fetch user stats
+        const statsResponse = await fetch(`/api/users/${session.user.id}`)
+        if (statsResponse.ok) {
+          const userData = await statsResponse.json()
+          setStats({
+            points: userData.user.points || 0,
+            rank: 42, // TODO: Calculate from leaderboard
+            challengesCompleted: userData.recentSubmissions?.length || 0,
+            teamMembers: userData.teams?.length || 0
+          })
+        }
+
+        // Fetch current challenge
+        const challengesResponse = await fetch('/api/challenges?active=true')
+        if (challengesResponse.ok) {
+          const challenges = await challengesResponse.json()
+          if (challenges.length > 0) {
+            setCurrentChallenge({
+              ...challenges[0],
+              progress: 65 // TODO: Calculate from user progress
+            })
+          }
+        }
+
+        // Fetch recent activity
+        const activityResponse = await fetch(`/api/submissions?userId=${session.user.id}&limit=5`)
+        if (activityResponse.ok) {
+          const submissions = await activityResponse.json()
+          setRecentActivity(submissions.map((sub: any) => ({
+            id: sub.id,
+            type: 'submission',
+            title: `Completed "${sub.challenge.title}" challenge`,
+            description: `Earned ${sub.score || 0} points`,
+            points: sub.score,
+            date: sub.submittedAt
+          })))
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchDashboardData()
+  }, [session])
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -14,10 +100,19 @@ export default function DashboardPage() {
           className="mb-8"
         >
           <h1 className="text-4xl font-bold text-white mb-2">
-            Welcome back, <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Student</span>
+            Welcome back, <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              {session?.user?.name || session?.user?.username || 'Student'}
+            </span>
           </h1>
           <p className="text-gray-400">Track your progress and stay ahead of the competition</p>
         </motion.div>
+
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+            <span className="ml-2 text-gray-400">Loading your dashboard...</span>
+          </div>
+        ) : (
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -30,7 +125,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-400 text-sm">Total Points</p>
-                <p className="text-2xl font-bold text-white">1,250</p>
+                <p className="text-2xl font-bold text-white">{stats?.points?.toLocaleString() || '0'}</p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-orange-500 rounded-lg flex items-center justify-center">
                 <Trophy className="w-6 h-6 text-white" />
@@ -47,7 +142,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-400 text-sm">Rank</p>
-                <p className="text-2xl font-bold text-white">#42</p>
+                <p className="text-2xl font-bold text-white">#{stats?.rank || 'N/A'}</p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
                 <TrendingUp className="w-6 h-6 text-white" />
@@ -64,7 +159,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-400 text-sm">Challenges Completed</p>
-                <p className="text-2xl font-bold text-white">8</p>
+                <p className="text-2xl font-bold text-white">{stats?.challengesCompleted || '0'}</p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
                 <Target className="w-6 h-6 text-white" />
@@ -81,7 +176,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-400 text-sm">Team Members</p>
-                <p className="text-2xl font-bold text-white">3</p>
+                <p className="text-2xl font-bold text-white">{stats?.teamMembers || '0'}</p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center">
                 <Users className="w-6 h-6 text-white" />
@@ -107,41 +202,47 @@ export default function DashboardPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div>
-              <h3 className="text-xl font-semibold text-white mb-4">Quantum Computing Challenge</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">
+                {currentChallenge?.title || 'No Active Challenge'}
+              </h3>
               <p className="text-gray-300 mb-6">
-                Design and implement a quantum algorithm to solve a complex optimization problem. 
-                This challenge will test your understanding of quantum mechanics, linear algebra, 
-                and algorithmic thinking.
+                {currentChallenge?.description || 'Check back soon for new challenges!'}
               </p>
               
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                  <span className="text-gray-300">Difficulty: Advanced</span>
+              {currentChallenge && (
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                    <span className="text-gray-300">Difficulty: {currentChallenge.difficulty}</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                    <span className="text-gray-300">Points: {currentChallenge.points}</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                    <span className="text-gray-300">Category: {currentChallenge.category}</span>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-                  <span className="text-gray-300">Points: 500</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                  <span className="text-gray-300">Category: Computer Science</span>
-                </div>
-              </div>
+              )}
             </div>
 
             <div className="space-y-4">
-              <div className="bg-black/20 rounded-lg p-4">
-                <h4 className="text-white font-semibold mb-2">Your Progress</h4>
-                <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
-                  <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full" style={{ width: '65%' }}></div>
-                </div>
-                <p className="text-gray-400 text-sm">65% complete</p>
-              </div>
+              {currentChallenge && (
+                <>
+                  <div className="bg-black/20 rounded-lg p-4">
+                    <h4 className="text-white font-semibold mb-2">Your Progress</h4>
+                    <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
+                      <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full" style={{ width: `${currentChallenge.progress}%` }}></div>
+                    </div>
+                    <p className="text-gray-400 text-sm">{currentChallenge.progress}% complete</p>
+                  </div>
 
-              <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-200">
-                Continue Challenge
-              </button>
+                  <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-200">
+                    Continue Challenge
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </motion.div>
@@ -156,37 +257,26 @@ export default function DashboardPage() {
           <h2 className="text-2xl font-bold text-white mb-6">Recent Activity</h2>
           
           <div className="space-y-4">
-            <div className="flex items-center space-x-4 p-4 bg-black/20 rounded-lg">
-              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
-                <Award className="w-5 h-5 text-white" />
+            {recentActivity.length > 0 ? (
+              recentActivity.map((activity) => (
+                <div key={activity.id} className="flex items-center space-x-4 p-4 bg-black/20 rounded-lg">
+                  <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
+                    <Award className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-white font-medium">{activity.title}</p>
+                    <p className="text-gray-400 text-sm">{activity.description} • {new Date(activity.date).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-400">No recent activity. Start your first challenge!</p>
               </div>
-              <div className="flex-1">
-                <p className="text-white font-medium">Completed "Machine Learning Basics" challenge</p>
-                <p className="text-gray-400 text-sm">Earned 250 points • 2 days ago</p>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-4 p-4 bg-black/20 rounded-lg">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
-                <Users className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="text-white font-medium">Joined team "Quantum Coders"</p>
-                <p className="text-gray-400 text-sm">Team now has 3 members • 5 days ago</p>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-4 p-4 bg-black/20 rounded-lg">
-              <div className="w-10 h-10 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center">
-                <Trophy className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="text-white font-medium">Achieved "Speed Demon" badge</p>
-                <p className="text-gray-400 text-sm">Completed challenge in record time • 1 week ago</p>
-              </div>
-            </div>
+            )}
           </div>
         </motion.div>
+        )}
       </div>
     </div>
   )
