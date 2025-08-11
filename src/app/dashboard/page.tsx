@@ -33,11 +33,40 @@ interface Activity {
 }
 
 export default function DashboardPage() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const [stats, setStats] = useState<UserStats | null>(null)
   const [currentChallenge, setCurrentChallenge] = useState<Challenge | null>(null)
   const [recentActivity, setRecentActivity] = useState<Activity[]>([])
   const [isLoading, setIsLoading] = useState(true)
+
+  // Show loading while checking authentication
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 text-blue-400 animate-spin mx-auto mb-4" />
+          <p className="text-gray-400">Checking authentication...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Redirect if not authenticated
+  if (status === 'unauthenticated' || !session) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-400 mb-4">You need to be logged in to view this page.</p>
+          <a 
+            href="/login" 
+            className="bg-gradient-to-r from-blue-600 to-orange-600 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-orange-700 transition-all duration-200"
+          >
+            Go to Login
+          </a>
+        </div>
+      </div>
+    )
+  }
 
   useEffect(() => {
     const fetchDashboardData = async () => {

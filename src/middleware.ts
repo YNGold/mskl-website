@@ -1,40 +1,50 @@
-import { withAuth } from 'next-auth/middleware'
 import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { getToken } from 'next-auth/jwt'
 
-export default withAuth(
-  function middleware(req) {
-    const token = req.nextauth.token
-    const isAuth = !!token
-    const isAuthPage = req.nextUrl.pathname.startsWith('/login') || req.nextUrl.pathname.startsWith('/signup')
-    const isStudentRoute = req.nextUrl.pathname.startsWith('/dashboard') || 
-                          req.nextUrl.pathname.startsWith('/challenges') ||
-                          req.nextUrl.pathname.startsWith('/profile') ||
-                          req.nextUrl.pathname.startsWith('/submissions')
-
-    // If user is on auth page but already authenticated, redirect to dashboard
-    if (isAuthPage && isAuth) {
-      return NextResponse.redirect(new URL('/dashboard', req.url))
-    }
-
-    // If user is trying to access student route but not authenticated, redirect to login
-    if (isStudentRoute && !isAuth) {
-      return NextResponse.redirect(new URL('/login', req.url))
-    }
-
-    // If user is admin, allow access to admin routes
-    if (req.nextUrl.pathname.startsWith('/admin')) {
-      // Admin routes are handled by separate admin middleware
-      return NextResponse.next()
-    }
-
-    return NextResponse.next()
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => !!token
-    },
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+  
+  console.log('🔒 Middleware called for path:', pathname)
+  
+  // Define protected routes
+  const protectedRoutes = ['/dashboard', '/challenges', '/profile', '/submissions']
+  const authRoutes = ['/login', '/signup']
+  
+  // Check if the current path is a protected route
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
+  const isAuthRoute = authRoutes.some(route => pathname.startsWith(route))
+  
+  console.log('🔒 Is protected route:', isProtectedRoute)
+  console.log('🔒 Is auth route:', isAuthRoute)
+  
+  // Get the token from the request
+  const token = await getToken({ 
+    req: request, 
+    secret: process.env.NEXTAUTH_SECRET 
+  })
+  
+  const isAuthenticated = !!token
+  
+  console.log('🔒 Token exists:', !!token)
+  console.log('🔒 Is authenticated:', isAuthenticated)
+  
+  // If trying to access protected route without authentication
+  if (isProtectedRoute && !isAuthenticated) {
+    console.log('🚫 Middleware: Redirecting unauthenticated user from', pathname, 'to /login')
+    return NextResponse.redirect(new URL('/login', request.url))
   }
-)
+  
+  // If trying to access auth pages while already authenticated
+  if (isAuthRoute && isAuthenticated) {
+    console.log('🔄 Middleware: Redirecting authenticated user from', pathname, 'to /dashboard')
+    return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+  
+  console.log('✅ Middleware: Allowing request to continue')
+  // Allow the request to continue
+  return NextResponse.next()
+}
 
 export const config = {
   matcher: [
