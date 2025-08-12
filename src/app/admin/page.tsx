@@ -22,8 +22,10 @@ import {
   X,
   Shield,
   Crown,
-  GraduationCap
+  GraduationCap,
+  Mail
 } from 'lucide-react'
+import MessagingCenter from '@/components/MessagingCenter'
 
 interface AdminSession {
   id: string
@@ -1131,6 +1133,7 @@ export default function AdminDashboard() {
             { id: 'prizes', label: 'Prizes', icon: Award },
             { id: 'advisors', label: 'Advisors', icon: GraduationCap },
             { id: 'submissions', label: 'Submissions', icon: Trophy },
+            { id: 'messaging', label: 'Messaging', icon: Mail },
             { id: 'settings', label: 'Settings', icon: Settings }
           ].map((tab) => (
             <button
@@ -1776,6 +1779,10 @@ export default function AdminDashboard() {
                 </table>
               </div>
             </div>
+          )}
+
+          {activeTab === 'messaging' && (
+            <MessagingCenter />
           )}
 
           {activeTab === 'settings' && (
