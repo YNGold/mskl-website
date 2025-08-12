@@ -128,11 +128,17 @@ export default function MessagingCenter() {
       if (templatesRes.ok) {
         const templatesData = await templatesRes.json()
         setTemplates(templatesData)
+      } else if (templatesRes.status === 503) {
+        setError('Database schema not ready. Please contact administrator.')
+        return
       }
 
       if (campaignsRes.ok) {
         const campaignsData = await campaignsRes.json()
         setCampaigns(campaignsData)
+      } else if (campaignsRes.status === 503) {
+        setError('Database schema not ready. Please contact administrator.')
+        return
       }
 
       if (recipientsRes.ok) {
