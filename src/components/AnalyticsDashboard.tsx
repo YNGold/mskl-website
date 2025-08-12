@@ -331,6 +331,22 @@ export default function AnalyticsDashboard() {
 }
 
 function OverviewTab({ data }: { data: AnalyticsData }) {
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`
+    return num.toString()
+  }
+
+  const formatPercentage = (num: number) => {
+    return `${num > 0 ? '+' : ''}${num.toFixed(1)}%`
+  }
+
+  const getGrowthColor = (rate: number) => {
+    if (rate > 0) return 'text-green-400'
+    if (rate < 0) return 'text-red-400'
+    return 'text-gray-400'
+  }
+
   const metrics = [
     {
       label: 'Total Users',

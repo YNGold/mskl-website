@@ -51,15 +51,15 @@ export async function GET(request: NextRequest) {
 
     // Challenge Statistics
     const totalChallenges = await prisma.challenge.count()
-    const activeChallenges = await prisma.challenge.count({
-      where: {
-        status: 'active'
-      }
-    })
+      const activeChallenges = await prisma.challenge.count({
+    where: {
+      isActive: true
+    }
+  })
 
     const totalSubmissions = await prisma.submission.count({
       where: {
-        createdAt: {
+        submittedAt: {
           gte: startDateFilter
         }
       }
@@ -168,7 +168,7 @@ export async function GET(request: NextRequest) {
 
     const previousSubmissions = await prisma.submission.count({
       where: {
-        createdAt: {
+        submittedAt: {
           gte: previousPeriodStart,
           lt: startDateFilter
         }

@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
         title: challenge.title,
         category: challenge.category.name,
         grade: challenge.grade,
-        status: challenge.status,
+        status: challenge.isActive ? 'active' : 'inactive',
         submissions: challenge._count.submissions,
         analytics: challenge.analytics,
         createdAt: challenge.createdAt
@@ -95,7 +95,7 @@ async function getChallengeDetails(challengeId: string, startDate: Date) {
       analytics: true,
       submissions: {
         where: {
-          createdAt: {
+          submittedAt: {
             gte: startDate
           }
         },
@@ -109,7 +109,7 @@ async function getChallengeDetails(challengeId: string, startDate: Date) {
             }
           }
         },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { submittedAt: 'desc' }
       },
       _count: {
         select: { submissions: true }
@@ -142,7 +142,7 @@ async function getChallengeDetails(challengeId: string, startDate: Date) {
 
   // Submission timeline
   const submissionTimeline = challenge.submissions.reduce((acc, submission) => {
-    const date = submission.createdAt.toISOString().split('T')[0]
+    const date = submission.submittedAt.toISOString().split('T')[0]
     acc[date] = (acc[date] || 0) + 1
     return acc
   }, {} as Record<string, number>)
@@ -154,7 +154,7 @@ async function getChallengeDetails(challengeId: string, startDate: Date) {
       description: challenge.description,
       category: challenge.category.name,
       grade: challenge.grade,
-      status: challenge.status,
+      status: challenge.isActive ? 'active' : 'inactive',
       createdAt: challenge.createdAt,
       analytics: challenge.analytics
     },
@@ -182,7 +182,7 @@ async function getChallengeDetails(challengeId: string, startDate: Date) {
     recentSubmissions: challenge.submissions.slice(0, 10).map(submission => ({
       id: submission.id,
       status: submission.status,
-      submittedAt: submission.createdAt,
+      submittedAt: submission.submittedAt,
       user: {
         name: `${submission.user.firstName} ${submission.user.lastName}`,
         grade: submission.user.grade,
@@ -203,7 +203,7 @@ async function getChallengePerformance(startDate: Date) {
   })
 
   const totalChallenges = challenges.length
-  const activeChallenges = challenges.filter(c => c.status === 'active').length
+  const activeChallenges = challenges.filter(c => c.isActive).length
   const totalSubmissions = challenges.reduce((sum, c) => sum + c._count.submissions, 0)
   const avgSubmissionsPerChallenge = totalChallenges > 0 ? totalSubmissions / totalChallenges : 0
 
@@ -226,7 +226,7 @@ async function getChallengePerformance(startDate: Date) {
 async function getEngagementMetrics(startDate: Date) {
   const submissions = await prisma.submission.findMany({
     where: {
-      createdAt: {
+      submittedAt: {
         gte: startDate
       }
     },
@@ -236,7 +236,7 @@ async function getEngagementMetrics(startDate: Date) {
   })
 
   const dailySubmissions = submissions.reduce((acc, submission) => {
-    const date = submission.createdAt.toISOString().split('T')[0]
+    const date = submission.submittedAt.toISOString().split('T')[0]
     acc[date] = (acc[date] || 0) + 1
     return acc
   }, {} as Record<string, number>)
@@ -337,7 +337,7 @@ async function getDifficultyAnalysis(startDate: Date) {
 async function getCompletionRates(startDate: Date) {
   const submissions = await prisma.submission.findMany({
     where: {
-      createdAt: {
+      submittedAt: {
         gte: startDate
       }
     },
@@ -375,7 +375,7 @@ async function getCompletionRates(startDate: Date) {
 async function getGeographicPerformance(startDate: Date) {
   const submissions = await prisma.submission.findMany({
     where: {
-      createdAt: {
+      submittedAt: {
         gte: startDate
       }
     },

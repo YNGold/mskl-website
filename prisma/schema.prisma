@@ -263,7 +263,7 @@ model UserAction {
 
 model ChallengeAnalytics {
   id          String    @id @default(cuid())
-  challengeId String
+  challengeId String    @unique
   totalViews  Int       @default(0)
   totalStarts Int       @default(0)
   totalSubmissions Int  @default(0)
