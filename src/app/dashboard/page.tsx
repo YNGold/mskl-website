@@ -147,8 +147,8 @@ export default function DashboardPage() {
             <span className="ml-2 text-gray-400">Loading your dashboard...</span>
           </div>
         ) : (
-
-        {/* Stats Grid */}
+          <>
+            {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -310,6 +310,7 @@ export default function DashboardPage() {
             )}
           </div>
         </motion.div>
+          </>
         )}
       </div>
     </div>
