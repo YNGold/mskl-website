@@ -134,7 +134,7 @@ export default function DashboardPage() {
           className="mb-8"
         >
           <h1 className="text-4xl font-bold text-white mb-2">
-            Welcome back, <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            🔒 PROTECTED DASHBOARD - Welcome back, <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               {session?.user?.name || session?.user?.username || 'Student'}
             </span>
           </h1>
