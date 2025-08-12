@@ -34,6 +34,7 @@ model User {
   submissions   Submission[]
   teamMembers   TeamMember[]
   createdTeams  Team[]      @relation("TeamCreator")
+  emailLogs     EmailLog[]
   
   @@map("users")
 }
@@ -163,4 +164,63 @@ model Advisor {
   updatedAt   DateTime  @updatedAt
   
   @@map("advisors")
+}
+
+model EmailTemplate {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  type        String    // "confirm_email", "welcome", "new_challenge", "newsletter", "custom"
+  subject     String
+  content     String    // HTML content
+  variables   String[]  // Array of available variables like {{userName}}, {{challengeTitle}}, etc.
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relationships
+  campaigns   EmailCampaign[]
+  
+  @@map("email_templates")
+}
+
+model EmailCampaign {
+  id          String    @id @default(cuid())
+  name        String
+  templateId  String?
+  subject     String
+  content     String    // HTML content
+  status      String    @default("draft") // "draft", "scheduled", "sending", "sent", "cancelled"
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  totalRecipients Int    @default(0)
+  sentCount   Int       @default(0)
+  failedCount Int       @default(0)
+  filters     String?   // JSON string for recipient filters
+  createdBy   String    // Admin ID who created the campaign
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relationships
+  template    EmailTemplate? @relation(fields: [templateId], references: [id])
+  emailLogs   EmailLog[]
+  
+  @@map("email_campaigns")
+}
+
+model EmailLog {
+  id          String    @id @default(cuid())
+  campaignId  String?
+  userId      String
+  email       String
+  subject     String
+  status      String    // "sent", "delivered", "bounced", "failed"
+  sentAt      DateTime  @default(now())
+  deliveredAt DateTime?
+  errorMessage String?
+  
+  // Relationships
+  campaign    EmailCampaign? @relation(fields: [campaignId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+  
+  @@map("email_logs")
 }

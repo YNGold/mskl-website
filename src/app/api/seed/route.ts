@@ -294,6 +294,85 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // Create sample email templates
+    const emailTemplates = [
+      {
+        name: 'Welcome Email',
+        type: 'welcome',
+        subject: 'Welcome to MSKL - Your STEM Journey Begins!',
+        content: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #3b82f6;">Welcome to MSKL, {{userName}}!</h2>
+            <p>We're excited to have you join our community of exceptional students!</p>
+            <p>Here's what you can do to get started:</p>
+            <ul>
+              <li>Browse current challenges</li>
+              <li>Connect with other students</li>
+              <li>Start earning points and climbing the leaderboard</li>
+            </ul>
+            <p>Ready to take on your first challenge? <a href="{{challengeUrl}}">Click here to get started!</a></p>
+            <p>Best regards,<br>The MSKL Team</p>
+          </div>
+        `,
+        variables: ['userName', 'challengeUrl'],
+        isActive: true
+      },
+      {
+        name: 'New Challenge Notification',
+        type: 'new_challenge',
+        subject: 'New Challenge Available: {{challengeTitle}}',
+        content: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #3b82f6;">New Challenge Alert!</h2>
+            <p>Hello {{userName}},</p>
+            <p>A new challenge is now available: <strong>{{challengeTitle}}</strong></p>
+            <p><strong>Challenge Details:</strong></p>
+            <ul>
+              <li>Category: {{challengeCategory}}</li>
+              <li>Difficulty: {{challengeDifficulty}}</li>
+              <li>Points: {{challengePoints}}</li>
+              <li>Deadline: {{challengeDeadline}}</li>
+            </ul>
+            <p><a href="{{challengeUrl}}">View Challenge Details</a></p>
+            <p>Good luck!</p>
+            <p>Best regards,<br>The MSKL Team</p>
+          </div>
+        `,
+        variables: ['userName', 'challengeTitle', 'challengeCategory', 'challengeDifficulty', 'challengePoints', 'challengeDeadline', 'challengeUrl'],
+        isActive: true
+      },
+      {
+        name: 'Newsletter Template',
+        type: 'newsletter',
+        subject: 'MSKL Monthly Newsletter - {{month}} {{year}}',
+        content: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #3b82f6;">MSKL Monthly Newsletter</h2>
+            <p>Hello {{userName}},</p>
+            <p>Here's what's happening this month at MSKL:</p>
+            <h3>📊 Leaderboard Updates</h3>
+            <p>{{leaderboardUpdates}}</p>
+            <h3>🏆 Recent Winners</h3>
+            <p>{{recentWinners}}</p>
+            <h3>🎯 Upcoming Challenges</h3>
+            <p>{{upcomingChallenges}}</p>
+            <h3>📚 Tips & Resources</h3>
+            <p>{{tipsAndResources}}</p>
+            <p><a href="{{newsletterUrl}}">Read Full Newsletter</a></p>
+            <p>Best regards,<br>The MSKL Team</p>
+          </div>
+        `,
+        variables: ['userName', 'month', 'year', 'leaderboardUpdates', 'recentWinners', 'upcomingChallenges', 'tipsAndResources', 'newsletterUrl'],
+        isActive: true
+      }
+    ]
+
+    for (const templateData of emailTemplates) {
+      await prisma.emailTemplate.create({
+        data: templateData
+      })
+    }
+
     // Create sample advisors
     const advisors = [
       {
@@ -405,7 +484,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
-      message: 'Database seeded successfully with categories, challenges, users, prizes, advisors, and submissions',
+      message: 'Database seeded successfully with categories, challenges, users, prizes, advisors, email templates, and submissions',
       stats: {
         categories: createdCategories.length,
         challenges: createdChallenges.length,
