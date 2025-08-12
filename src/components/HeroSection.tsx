@@ -3,8 +3,10 @@
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowRight, Target, Zap, Trophy } from 'lucide-react'
+import { useActionHandler } from '@/utils/actionHandler'
 
 export function HeroSection() {
+  const { handleAction } = useActionHandler()
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Effects */}
@@ -40,16 +42,15 @@ export function HeroSection() {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="flex flex-col sm:flex-row gap-4 justify-center items-center"
         >
-          <Link href="/signup">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-gradient-to-r from-blue-600 to-orange-600 hover:from-blue-700 hover:to-orange-700 text-white px-8 py-4 rounded-lg font-semibold text-lg flex items-center space-x-2 transition-all duration-200 shadow-lg shadow-blue-500/25"
-            >
-              <span>Join the Challenge</span>
-              <ArrowRight className="w-5 h-5" />
-            </motion.button>
-          </Link>
+          <motion.button
+            onClick={() => handleAction('join the challenge', '/dashboard')}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="bg-gradient-to-r from-blue-600 to-orange-600 hover:from-blue-700 hover:to-orange-700 text-white px-8 py-4 rounded-lg font-semibold text-lg flex items-center space-x-2 transition-all duration-200 shadow-lg shadow-blue-500/25"
+          >
+            <span>Join the Challenge</span>
+            <ArrowRight className="w-5 h-5" />
+          </motion.button>
           
           <Link href="/challenges">
             <motion.button
