@@ -9,7 +9,7 @@ export default async function AdminTestPage() {
   const adminSession = cookieStore.get('admin-session')
 
   if (!adminSession) {
-    redirect('/admin/login')
+    redirect('/admin-login')
   }
 
   // Parse the session data
@@ -18,7 +18,7 @@ export default async function AdminTestPage() {
     sessionData = JSON.parse(decodeURIComponent(adminSession.value))
   } catch (error) {
     console.error('Error parsing admin session:', error)
-    redirect('/admin/login')
+    redirect('/admin-login')
   }
 
   return (
@@ -52,12 +52,12 @@ export default async function AdminTestPage() {
           >
             Go to Admin Dashboard
           </a>
-          <a 
-            href="/admin/login" 
-            className="block w-full bg-gray-600 text-white px-4 py-2 rounded-lg text-center hover:bg-gray-700 transition-all duration-200"
-          >
-            Go to Admin Login
-          </a>
+                      <a 
+              href="/admin-login" 
+              className="block w-full bg-gray-600 text-white px-4 py-2 rounded-lg text-center hover:bg-gray-700 transition-all duration-200"
+            >
+              Go to Admin Login
+            </a>
         </div>
       </div>
     </div>

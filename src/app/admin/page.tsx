@@ -403,18 +403,18 @@ export default function AdminDashboard() {
           const session = await response.json()
           if (session && session.id) {
             setAdminSession(session)
-          } else {
-            console.log('No valid admin session found, redirecting to login')
-            router.push('/admin/login')
-          }
-        } else {
-          console.log('Admin session check failed, redirecting to login')
-          router.push('/admin/login')
+                  } else {
+          console.log('No valid admin session found, redirecting to login')
+          router.push('/admin-login')
         }
-      } catch (error) {
-        console.error('Auth check failed:', error)
-        router.push('/admin/login')
+      } else {
+        console.log('Admin session check failed, redirecting to login')
+        router.push('/admin-login')
       }
+    } catch (error) {
+      console.error('Auth check failed:', error)
+      router.push('/admin-login')
+    }
     }
 
     checkAuth()
@@ -424,7 +424,7 @@ export default function AdminDashboard() {
     try {
       await fetch('/api/auth/admin-logout', { method: 'POST' })
       setAdminSession(null)
-      router.push('/admin/login')
+      router.push('/admin-login')
     } catch (error) {
       console.error('Logout failed:', error)
     }

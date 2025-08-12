@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
   const protectedRoutes = ['/dashboard', '/challenges', '/profile', '/submissions']
   const authRoutes = ['/login', '/signup']
   const adminRoutes = ['/admin']
-  const adminAuthRoutes = ['/admin/login']
+  const adminAuthRoutes = ['/admin-login']
   
   // Check if the current path is a protected route
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
@@ -31,9 +31,15 @@ export async function middleware(request: NextRequest) {
     console.log('🔒 Admin session cookie exists:', !!adminSession)
     
     if (!adminSession) {
-      console.log('🚫 Middleware: Redirecting unauthenticated admin from', pathname, 'to /admin/login')
-      return NextResponse.redirect(new URL('/admin/login', request.url))
+      console.log('🚫 Middleware: Redirecting unauthenticated admin from', pathname, 'to /admin-login')
+      return NextResponse.redirect(new URL('/admin-login', request.url))
     }
+  }
+  
+  // Allow admin login page to be accessed without authentication
+  if (isAdminAuthRoute) {
+    console.log('✅ Middleware: Allowing access to admin login page')
+    return NextResponse.next()
   }
   
   // Handle student routes with NextAuth
