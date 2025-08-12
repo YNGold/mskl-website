@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
+
+// Force dynamic rendering to prevent pre-rendering
+export const dynamic = 'force-dynamic'
 import { 
   Users, 
   Target, 
@@ -398,8 +401,14 @@ export default function AdminDashboard() {
         const response = await fetch('/api/auth/admin-session')
         if (response.ok) {
           const session = await response.json()
-          setAdminSession(session)
+          if (session && session.id) {
+            setAdminSession(session)
+          } else {
+            console.log('No valid admin session found, redirecting to login')
+            router.push('/admin/login')
+          }
         } else {
+          console.log('Admin session check failed, redirecting to login')
           router.push('/admin/login')
         }
       } catch (error) {
@@ -427,7 +436,8 @@ export default function AdminDashboard() {
       <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-orange-900 flex items-center justify-center">
         <div className="text-white text-center">
           <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
-          <p>Loading admin panel...</p>
+          <p className="text-lg font-semibold mb-2">🔒 Admin Authentication Check</p>
+          <p className="text-sm text-gray-300">Verifying admin credentials...</p>
         </div>
       </div>
     )
