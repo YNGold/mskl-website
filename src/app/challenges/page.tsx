@@ -99,10 +99,16 @@ export default function ChallengesPage() {
               Solve complex problems, showcase your skills, and earn points towards amazing prizes.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="px-8 py-3 bg-gradient-to-r from-blue-600 to-orange-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-orange-700 transition-all duration-200 transform hover:scale-105">
+              <button 
+                onClick={() => handleAction('start a challenge', '/challenges')}
+                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-orange-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-orange-700 transition-all duration-200 transform hover:scale-105"
+              >
                 Start a Challenge
               </button>
-              <button className="px-8 py-3 border border-blue-500 text-blue-300 font-semibold rounded-lg hover:bg-blue-500/10 transition-all duration-200">
+              <button 
+                onClick={() => handleAction('view past solutions', '/submissions')}
+                className="px-8 py-3 border border-blue-500 text-blue-300 font-semibold rounded-lg hover:bg-blue-500/10 transition-all duration-200"
+              >
                 View Past Solutions
               </button>
             </div>
@@ -312,7 +318,10 @@ export default function ChallengesPage() {
             Join thousands of exceptional students who are already solving real-world problems. 
             Start your journey to success today.
           </p>
-          <button className="px-8 py-4 bg-gradient-to-r from-blue-600 to-orange-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-orange-700 transition-all duration-200 transform hover:scale-105">
+          <button 
+            onClick={() => handleAction('start your first challenge', '/challenges')}
+            className="px-8 py-4 bg-gradient-to-r from-blue-600 to-orange-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-orange-700 transition-all duration-200 transform hover:scale-105"
+          >
             Start Your First Challenge
           </button>
         </div>

@@ -60,32 +60,68 @@ export default function CommunityPage() {
           <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 hover:bg-white/10 transition-all duration-200">
             <div className="text-purple-400 text-lg font-semibold mb-2">Math Challenges</div>
             <p className="text-gray-300 mb-4">Discuss mathematical concepts and problem-solving strategies</p>
-            <div className="text-sm text-gray-400">1.2k posts • 3.4k members</div>
+            <div className="text-sm text-gray-400 mb-4">1.2k posts • 3.4k members</div>
+            <button 
+              onClick={() => handleAction('join math challenges discussion', '/community/discussions/math')}
+              className="w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200"
+            >
+              Join Discussion
+            </button>
           </div>
           <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 hover:bg-white/10 transition-all duration-200">
             <div className="text-pink-400 text-lg font-semibold mb-2">Science Projects</div>
             <p className="text-gray-300 mb-4">Share experiments, research findings, and scientific discoveries</p>
-            <div className="text-sm text-gray-400">856 posts • 2.1k members</div>
+            <div className="text-sm text-gray-400 mb-4">856 posts • 2.1k members</div>
+            <button 
+              onClick={() => handleAction('join science projects discussion', '/community/discussions/science')}
+              className="w-full px-4 py-2 bg-gradient-to-r from-pink-600 to-red-600 text-white font-semibold rounded-lg hover:from-pink-700 hover:to-red-700 transition-all duration-200"
+            >
+              Join Discussion
+            </button>
           </div>
           <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 hover:bg-white/10 transition-all duration-200">
             <div className="text-green-400 text-lg font-semibold mb-2">Innovation Hub</div>
             <p className="text-gray-300 mb-4">Brainstorm creative solutions to real-world problems</p>
-            <div className="text-sm text-gray-400">1.5k posts • 4.2k members</div>
+            <div className="text-sm text-gray-400 mb-4">1.5k posts • 4.2k members</div>
+            <button 
+              onClick={() => handleAction('join innovation hub discussion', '/community/discussions/innovation')}
+              className="w-full px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200"
+            >
+              Join Discussion
+            </button>
           </div>
           <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 hover:bg-white/10 transition-all duration-200">
             <div className="text-blue-400 text-lg font-semibold mb-2">Study Groups</div>
             <p className="text-gray-300 mb-4">Form study groups and prepare for competitions together</p>
-            <div className="text-sm text-gray-400">623 posts • 1.8k members</div>
+            <div className="text-sm text-gray-400 mb-4">623 posts • 1.8k members</div>
+            <button 
+              onClick={() => handleAction('join study groups discussion', '/community/discussions/study-groups')}
+              className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-200"
+            >
+              Join Discussion
+            </button>
           </div>
           <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 hover:bg-white/10 transition-all duration-200">
             <div className="text-yellow-400 text-lg font-semibold mb-2">Career Paths</div>
             <p className="text-gray-300 mb-4">Explore future careers in STEM and get advice from mentors</p>
-            <div className="text-sm text-gray-400">445 posts • 1.2k members</div>
+            <div className="text-sm text-gray-400 mb-4">445 posts • 1.2k members</div>
+            <button 
+              onClick={() => handleAction('join career paths discussion', '/community/discussions/careers')}
+              className="w-full px-4 py-2 bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-semibold rounded-lg hover:from-yellow-700 hover:to-orange-700 transition-all duration-200"
+            >
+              Join Discussion
+            </button>
           </div>
           <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 hover:bg-white/10 transition-all duration-200">
             <div className="text-orange-400 text-lg font-semibold mb-2">Events & Meetups</div>
             <p className="text-gray-300 mb-4">Organize and discuss local meetups and events</p>
-            <div className="text-sm text-gray-400">234 posts • 890 members</div>
+            <div className="text-sm text-gray-400 mb-4">234 posts • 890 members</div>
+            <button 
+              onClick={() => handleAction('join events and meetups discussion', '/community/discussions/events')}
+              className="w-full px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white font-semibold rounded-lg hover:from-orange-700 hover:to-red-700 transition-all duration-200"
+            >
+              Join Discussion
+            </button>
           </div>
         </div>
       </div>
