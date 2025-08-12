@@ -27,6 +27,7 @@ import {
 } from 'lucide-react'
 import MessagingCenter from '@/components/MessagingCenter'
 import AnalyticsDashboard from '@/components/AnalyticsDashboard'
+import AnalyticsSetupButton from '@/components/AnalyticsSetupButton'
 
 interface AdminSession {
   id: string
@@ -1788,7 +1789,10 @@ export default function AdminDashboard() {
   )}
 
   {activeTab === 'analytics' && (
-    <AnalyticsDashboard />
+    <div className="space-y-6">
+      <AnalyticsSetupButton />
+      <AnalyticsDashboard />
+    </div>
   )}
 
           {activeTab === 'settings' && (
