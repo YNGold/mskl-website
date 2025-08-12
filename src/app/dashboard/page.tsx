@@ -6,6 +6,9 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Target, Trophy, TrendingUp, Calendar, Users, Award, Loader2 } from 'lucide-react'
 
+// Force dynamic rendering to prevent pre-rendering
+export const dynamic = 'force-dynamic'
+
 interface UserStats {
   points: number
   rank: number
