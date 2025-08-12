@@ -26,6 +26,7 @@ import {
   Mail
 } from 'lucide-react'
 import MessagingCenter from '@/components/MessagingCenter'
+import AnalyticsDashboard from '@/components/AnalyticsDashboard'
 
 interface AdminSession {
   id: string
@@ -1134,6 +1135,7 @@ export default function AdminDashboard() {
             { id: 'advisors', label: 'Advisors', icon: GraduationCap },
             { id: 'submissions', label: 'Submissions', icon: Trophy },
             { id: 'messaging', label: 'Messaging', icon: Mail },
+            { id: 'analytics', label: 'Analytics', icon: BarChart3 },
             { id: 'settings', label: 'Settings', icon: Settings }
           ].map((tab) => (
             <button
@@ -1781,9 +1783,13 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {activeTab === 'messaging' && (
-            <MessagingCenter />
-          )}
+            {activeTab === 'messaging' && (
+    <MessagingCenter />
+  )}
+
+  {activeTab === 'analytics' && (
+    <AnalyticsDashboard />
+  )}
 
           {activeTab === 'settings' && (
             <div className="bg-black/30 backdrop-blur-sm border border-purple-500/20 rounded-xl p-6">

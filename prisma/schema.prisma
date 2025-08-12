@@ -35,6 +35,9 @@ model User {
   teamMembers   TeamMember[]
   createdTeams  Team[]      @relation("TeamCreator")
   emailLogs     EmailLog[]
+  pageViews     PageView[]
+  userActions   UserAction[]
+  userEngagement UserEngagement[]
   
   @@map("users")
 }
@@ -70,6 +73,7 @@ model Challenge {
   // Relationships
   category    Category    @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   submissions Submission[]
+  analytics   ChallengeAnalytics?
   
   @@unique([title, grade])
   @@map("challenges")
@@ -223,4 +227,105 @@ model EmailLog {
   user        User      @relation(fields: [userId], references: [id])
   
   @@map("email_logs")
+}
+
+// Analytics and Tracking Models
+model PageView {
+  id          String    @id @default(cuid())
+  userId      String?
+  sessionId   String
+  page        String    // "/dashboard", "/challenges", etc.
+  referrer    String?
+  userAgent   String?
+  ipAddress   String?
+  timestamp   DateTime  @default(now())
+  duration    Int?      // Time spent on page in seconds
+  
+  // Relationships
+  user        User?     @relation(fields: [userId], references: [id])
+  
+  @@map("page_views")
+}
+
+model UserAction {
+  id          String    @id @default(cuid())
+  userId      String
+  action      String    // "login", "signup", "start_challenge", "submit_solution", etc.
+  metadata    String?   // JSON string for additional data
+  timestamp   DateTime  @default(now())
+  ipAddress   String?
+  
+  // Relationships
+  user        User      @relation(fields: [userId], references: [id])
+  
+  @@map("user_actions")
+}
+
+model ChallengeAnalytics {
+  id          String    @id @default(cuid())
+  challengeId String
+  totalViews  Int       @default(0)
+  totalStarts Int       @default(0)
+  totalSubmissions Int  @default(0)
+  avgCompletionTime Int? // Average time to complete in minutes
+  successRate Float?    // Percentage of successful submissions
+  difficultyRating Float? // Average user difficulty rating
+  lastUpdated DateTime  @default(now())
+  
+  // Relationships
+  challenge   Challenge @relation(fields: [challengeId], references: [id])
+  
+  @@map("challenge_analytics")
+}
+
+model UserEngagement {
+  id          String    @id @default(cuid())
+  userId      String
+  date        DateTime  @default(now())
+  loginCount  Int       @default(0)
+  pageViews   Int       @default(0)
+  timeSpent   Int       @default(0) // Total time spent in minutes
+  challengesStarted Int @default(0)
+  challengesCompleted Int @default(0)
+  submissionsMade Int   @default(0)
+  pointsEarned Int      @default(0)
+  
+  // Relationships
+  user        User      @relation(fields: [userId], references: [id])
+  
+  @@map("user_engagement")
+}
+
+model ConversionFunnel {
+  id          String    @id @default(cuid())
+  date        DateTime  @default(now())
+  stage       String    // "landing_page", "signup", "first_login", "first_challenge", "first_submission"
+  visitors    Int       @default(0)
+  conversions Int       @default(0)
+  conversionRate Float  @default(0)
+  
+  @@map("conversion_funnel")
+}
+
+model GeographicAnalytics {
+  id          String    @id @default(cuid())
+  state       String
+  date        DateTime  @default(now())
+  totalUsers  Int       @default(0)
+  activeUsers Int       @default(0)
+  totalSubmissions Int  @default(0)
+  avgPoints   Float     @default(0)
+  avgEngagement Float   @default(0)
+  
+  @@map("geographic_analytics")
+}
+
+model PerformanceMetrics {
+  id          String    @id @default(cuid())
+  date        DateTime  @default(now())
+  metric      String    // "page_load_time", "api_response_time", "error_rate"
+  value       Float
+  unit        String    // "ms", "percentage", "count"
+  
+  @@map("performance_metrics")
 }
