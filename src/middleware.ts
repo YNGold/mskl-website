@@ -7,8 +7,8 @@ export async function middleware(request: NextRequest) {
   
   console.log('🔒 Middleware called for path:', pathname)
   
-  // Define protected routes
-  const protectedRoutes = ['/dashboard', '/challenges', '/profile', '/submissions']
+  // Define protected routes (student-specific)
+  const protectedRoutes = ['/dashboard', '/profile', '/submissions']
   const authRoutes = ['/login', '/signup']
   const adminRoutes = ['/admin']
   const adminAuthRoutes = ['/admin-login']
@@ -76,7 +76,6 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/dashboard/:path*',
-    '/challenges/:path*', 
     '/profile/:path*',
     '/submissions/:path*',
     '/admin/:path*',
