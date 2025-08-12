@@ -15,3 +15,4 @@ export default async function ChallengesLayout({
 
   return <>{children}</>
 }
+
