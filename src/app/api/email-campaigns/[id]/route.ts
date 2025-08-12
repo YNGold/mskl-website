@@ -1,19 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { requireAdminAuth } from '@/lib/auth-middleware'
+import { requireAdminAuth, getAdminSession } from '@/lib/auth-middleware'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
-    const adminSession = await requireAdminAuth(request)
+    const authError = requireAdminAuth(request)
+    if (authError) {
+      return authError
+    }
+    
+    const adminSession = getAdminSession(request)
     if (!adminSession) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const campaign = await prisma.emailCampaign.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         template: true,
         emailLogs: {
@@ -44,10 +50,16 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
-    const adminSession = await requireAdminAuth(request)
+    const authError = requireAdminAuth(request)
+    if (authError) {
+      return authError
+    }
+    
+    const adminSession = getAdminSession(request)
     if (!adminSession) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -56,7 +68,7 @@ export async function PUT(
     const { name, templateId, subject, content, scheduledAt, filters, status } = body
 
     const campaign = await prisma.emailCampaign.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name,
         templateId,
@@ -80,16 +92,22 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
-    const adminSession = await requireAdminAuth(request)
+    const authError = requireAdminAuth(request)
+    if (authError) {
+      return authError
+    }
+    
+    const adminSession = getAdminSession(request)
     if (!adminSession) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     await prisma.emailCampaign.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ message: 'Campaign deleted successfully' })

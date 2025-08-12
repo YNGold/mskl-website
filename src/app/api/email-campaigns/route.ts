@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { requireAdminAuth } from '@/lib/auth-middleware'
+import { requireAdminAuth, getAdminSession } from '@/lib/auth-middleware'
 
 export async function GET(request: NextRequest) {
   try {
-    const adminSession = await requireAdminAuth(request)
+    const authError = requireAdminAuth(request)
+    if (authError) {
+      return authError
+    }
+    
+    const adminSession = getAdminSession(request)
     if (!adminSession) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -29,7 +34,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const adminSession = await requireAdminAuth(request)
+    const authError = requireAdminAuth(request)
+    if (authError) {
+      return authError
+    }
+    
+    const adminSession = getAdminSession(request)
     if (!adminSession) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

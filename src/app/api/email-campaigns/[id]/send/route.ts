@@ -1,19 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { requireAdminAuth } from '@/lib/auth-middleware'
+import { requireAdminAuth, getAdminSession } from '@/lib/auth-middleware'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
-    const adminSession = await requireAdminAuth(request)
+    const authError = requireAdminAuth(request)
+    if (authError) {
+      return authError
+    }
+    
+    const adminSession = getAdminSession(request)
     if (!adminSession) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const campaign = await prisma.emailCampaign.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!campaign) {
@@ -66,7 +72,7 @@ export async function POST(
 
     // Update campaign status
     await prisma.emailCampaign.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status: 'sending',
         totalRecipients: recipients.length,
@@ -76,7 +82,7 @@ export async function POST(
 
     // Create email logs for each recipient
     const emailLogs = recipients.map(recipient => ({
-      campaignId: params.id,
+      campaignId: id,
       userId: recipient.id,
       email: recipient.email,
       subject: campaign.subject,
@@ -89,7 +95,7 @@ export async function POST(
 
     // Update campaign with sent count
     await prisma.emailCampaign.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status: 'sent',
         sentCount: recipients.length
