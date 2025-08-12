@@ -1,11 +1,9 @@
-import { Metadata } from 'next'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'Prizes & Rewards - MSKL.io',
-  description: 'Discover the amazing prizes, scholarships, and opportunities available to MSKL challenge winners.',
-}
+import { useActionHandler } from '@/utils/actionHandler'
 
 export default function PrizesPage() {
+  const { handleAction } = useActionHandler()
   const prizes = [
     {
       category: "Grand Prizes",
@@ -126,10 +124,16 @@ export default function PrizesPage() {
               From full scholarships to mentorship programs, your success opens doors to incredible opportunities.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="px-8 py-3 bg-gradient-to-r from-blue-600 to-orange-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-orange-700 transition-all duration-200 transform hover:scale-105">
+              <button 
+                onClick={() => handleAction('view current challenges', '/challenges')}
+                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-orange-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-orange-700 transition-all duration-200 transform hover:scale-105"
+              >
                 View Current Challenges
               </button>
-              <button className="px-8 py-3 border border-blue-500 text-blue-300 font-semibold rounded-lg hover:bg-blue-500/10 transition-all duration-200">
+              <button 
+                onClick={() => handleAction('view past winners', '/leaderboard')}
+                className="px-8 py-3 border border-blue-500 text-blue-300 font-semibold rounded-lg hover:bg-blue-500/10 transition-all duration-200"
+              >
                 Past Winners
               </button>
             </div>
