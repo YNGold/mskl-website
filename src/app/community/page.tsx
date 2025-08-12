@@ -1,11 +1,9 @@
-import { Metadata } from 'next'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'Community - MSKL.io',
-  description: 'Connect with exceptional students nationwide and collaborate on real-world challenges.',
-}
+import { useActionHandler } from '@/utils/actionHandler'
 
 export default function CommunityPage() {
+  const { handleAction } = useActionHandler()
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       {/* Hero Section */}
@@ -20,10 +18,16 @@ export default function CommunityPage() {
               Connect with exceptional students nationwide. Share ideas, collaborate on challenges, and build lasting friendships with like-minded peers.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="px-8 py-3 bg-gradient-to-r from-blue-600 to-orange-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-orange-700 transition-all duration-200 transform hover:scale-105">
+              <button 
+                onClick={() => handleAction('join discussion', '/community/discussions')}
+                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-orange-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-orange-700 transition-all duration-200 transform hover:scale-105"
+              >
                 Join Discussion
               </button>
-              <button className="px-8 py-3 border border-blue-500 text-blue-300 font-semibold rounded-lg hover:bg-blue-500/10 transition-all duration-200">
+              <button 
+                onClick={() => handleAction('view events', '/community/events')}
+                className="px-8 py-3 border border-blue-500 text-blue-300 font-semibold rounded-lg hover:bg-blue-500/10 transition-all duration-200"
+              >
                 View Events
               </button>
             </div>

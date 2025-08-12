@@ -1,11 +1,10 @@
-import { Metadata } from 'next'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'Challenges - MSKL.io',
-  description: 'Take on real-world STEM challenges and compete with exceptional students nationwide.',
-}
+import { Metadata } from 'next'
+import { useActionHandler } from '@/utils/actionHandler'
 
 export default function ChallengesPage() {
+  const { handleAction } = useActionHandler()
   const currentChallenges = [
     {
       id: 1,
@@ -168,7 +167,10 @@ export default function ChallengesPage() {
                 <div className="text-gray-400 text-sm">Deadline: {challenge.deadline}</div>
                 <div className="text-green-400 text-sm">● Active</div>
               </div>
-              <button className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-orange-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-orange-700 transition-all duration-200">
+              <button 
+                onClick={() => handleAction('start challenge', `/challenges/${challenge.id}`)}
+                className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-orange-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-orange-700 transition-all duration-200"
+              >
                 Start Challenge
               </button>
             </div>
@@ -211,7 +213,10 @@ export default function ChallengesPage() {
                 <div className="text-blue-400 font-bold">{challenge.points} pts</div>
                 <div className="text-gray-400 text-sm">Starts: {challenge.startDate}</div>
               </div>
-              <button className="w-full px-4 py-2 border border-blue-500 text-blue-300 font-semibold rounded-lg hover:bg-blue-500/10 transition-all duration-200">
+              <button 
+                onClick={() => handleAction('set reminder for upcoming challenge', `/challenges/${challenge.id}`)}
+                className="w-full px-4 py-2 border border-blue-500 text-blue-300 font-semibold rounded-lg hover:bg-blue-500/10 transition-all duration-200"
+              >
                 Set Reminder
               </button>
             </div>
