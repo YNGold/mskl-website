@@ -286,7 +286,10 @@ export default function PrizesPage() {
             Start your journey to success today. Take on challenges, showcase your skills, 
             and compete for life-changing prizes and opportunities.
           </p>
-          <button className="px-8 py-4 bg-gradient-to-r from-blue-600 to-orange-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-orange-700 transition-all duration-200 transform hover:scale-105">
+          <button 
+            onClick={() => handleAction('start competing now', '/challenges')}
+            className="px-8 py-4 bg-gradient-to-r from-blue-600 to-orange-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-orange-700 transition-all duration-200 transform hover:scale-105"
+          >
             Start Competing Now
           </button>
         </div>
